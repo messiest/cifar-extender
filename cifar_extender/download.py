@@ -11,7 +11,7 @@ import torch
 from torchvision.utils import save_image
 
 
-DATA_DIR = '../images/'  # where the images will be stored
+DATA_DIR = 'images/'  # where the images will be stored
 CIFAR10 = ['airplane', 'car', 'bird', 'cat', 'deer',  # automobile to car
            'dog', 'frog', 'horse', 'ship', 'truck']
 
@@ -125,7 +125,7 @@ def gather_images(search, num_images=None):
         file = url.split('/')[-1]  # image file name
         if os.path.splitext(file)[1] != ".jpg":  # skip non jpg files
             continue
-        print(f" {i+1}/{total_urls} - {file}")
+        print(f" {i+1}/{num_images} - {file}")
 
         download_image(DATA_DIR, file, url, category=search)
 
