@@ -1,5 +1,7 @@
+#!/usr/bin/env python3
 import os
 import sys
+import csv
 import asyncio
 
 import numpy as np
@@ -47,6 +49,7 @@ def get_image_urls(search_item):
             html = requests.get(url)  # html for search
             urls = (image_url for image_url in html.text.split('\r\n'))
             image_urls = [url for url in urls if url != '\n']
+            # TODO(@messiest) Break parsing and downloading into two modules
         except:
             pass
 
@@ -75,19 +78,21 @@ def download_image(loop, data_dir, file_name, url, category=None):
     file_path = os.path.join(category, file_name)
     try:
         image = requests.get(url, allow_redirects=False, timeout=5)
-        headers = image.headers
-        print(headers['Content-Type'], headers['Content-Length'])
-
-        if image.status_code == 200:
-            with open(os.path.join(data_dir, file_path), 'wb') as file:
-                file.write(image.content)
-                # pass
-        else:
-            print("ERROR {}: {}".format(image.status_code, url))
-
     except Exception as e:
         print(e)
-        pass
+        return e
+
+    headers = image.headers
+
+    if image.status_code != 200:
+        print("CONNECTION ERROR {}: {}".format(image.status_code, url))
+    elif headers['Content-Type'] != 'image/jpeg':
+        print("FILE TYPE ERROR {}: {}".format(headers['Content-Type'], url))
+    elif int(headers['Content-Length']) < 50000:
+        print("FILE SIZE ERROR {}: {}".format(headers['Content-Length'], url))
+    else:
+        with open(os.path.join(data_dir, file_path), 'wb') as file:
+            file.write(image.content)  #
 
     loop.stop()
 
@@ -131,18 +136,17 @@ def gather_images(loop, search, num_images=None):
         loop.call_soon(download_image, loop, DATA_DIR, file, url, search)
         # download_image(DATA_DIR, file, url, category=search)
 
-    print(f" {i+1}/{num_images} - {file}")
+    # print(f" {i+1}/{num_images} - {file}")
 
 
 def main(n=100, dataset=CIFAR10):
-
     if len(sys.argv) > 1:  # catch sys args
         n = int(sys.argv[1])
     # if len(sys.argv) > 2:  # look into optparse / argparse / click
     loop = asyncio.get_event_loop()  # async event loop
     for obj in dataset:
-        print(obj)
         gather_images(loop, obj, num_images=n)
+    #TODO (@messiest) figure out the looping, re making sure there are 100 images
     loop.run_forever()  # execute queued work
     loop.close()  # shutdown loop
 

@@ -1,4 +1,5 @@
-from distutils.core import setup
+from setuptools import setup
+
 
 setup(name='cifar-extender',
       version='1.0',
@@ -16,9 +17,5 @@ setup(name='cifar-extender',
                    'Programming Language :: Python',
                    'Programming Language :: Python :: 3',
                    'Topic :: Artificial Intelligence :: Scientific/Engineering'],
-      entry_points={
-          'console_scripts': [
-              'cifar-download = cifar_extender.download:main'
-          ]
-      },
+      scripts=['cifar_extender/cifar_download.py'],
       )
