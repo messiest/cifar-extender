@@ -10,7 +10,7 @@ import torch
 from torchvision.utils import save_image
 
 
-DATA_DIR = 'images/'  # where the images will be stored
+DATA_DIR = '../images/'  # where the images will be stored
 CIFAR10 = ['airplane', 'car', 'bird', 'cat', 'deer',  # automobile to car
            'dog', 'frog', 'horse', 'ship', 'truck']
 
@@ -70,20 +70,14 @@ def download_image(data_dir, file_name, url, category=None):
     :return: None
     :rtype: None
     """
-
-    file_type = url.split('.')[-1]
-    file_path = "{}/{}.{}".format(category, file_name, file_type) \
-        if category else "{}.{}".format(file_name, file_type)
-
-    file_name = ".".join(file_name, file_type)
-    print("FILE NAME:", file_name)
-    file_path = os.path.join(category, file_name, file_type)
-    print("FILE PATH:", file_path)
+    file_path = os.path.join(category, file_name)
     try:
         image = requests.get(url, allow_redirects=False, timeout=5)
         if image.status_code == 200:
-            with open(data_dir + file_path, 'wb') as file:
+
+            with open(os.path.join(data_dir, file_path), 'wb') as file:
                 file.write(image.content)
+                # pass
         else:
             print("ERROR {}: {}".format(image.status_code, url))
 
@@ -122,22 +116,21 @@ def gather_images(search, num_images=None):
     image_urls = [url for url in get_image_urls(search_url)]
     total_urls = len(image_urls)  # number of total urls
     print("  {} image urls found".format(total_urls))
-
     for i, url in enumerate(image_urls):  # start with last used url
         if i == num_images:  # only download set number of images
             break
         file = url.split('/')[-1]  # image file name
-        if file.split('.')[-1] != "jpg":  # skip non jpg
+        if os.path.splitext(file)[1] != ".jpg":  # skip non jpg files
             continue
         print(f" {i+1}/{total_urls} - {file}")
 
-        # download_image(DATA_DIR, file, url, category=search)
+        download_image(DATA_DIR, file, url, category=search)
 
 
 def main():
     for obj in CIFAR10:
         print(obj)
-        gather_images(obj, num_images=25)
+        gather_images(obj, num_images=500)
 
 
 if __name__ == "__main__":
