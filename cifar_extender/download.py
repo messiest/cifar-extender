@@ -137,4 +137,7 @@ def main(n=25, dataset=CIFAR10):
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main(n=int(sys.argv[1]))
+    except:
+        main()
