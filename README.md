@@ -1,3 +1,3 @@
-# CIFAR10 Extended
+# CIFAR Extender
 
-Extending the CIFAR10 data set with images from ImageNet
+Extend the CIFAR10 data set with images from ImageNet.
