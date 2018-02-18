@@ -2,6 +2,7 @@ import os
 import sys
 import csv
 
+import numpy as np
 import requests
 from bs4 import BeautifulSoup
 import cv2
@@ -51,6 +52,8 @@ def get_image_urls(search_item):
             image_urls = [url for url in urls if url != '\n']
         except:
             pass
+
+    np.random.shuffle(image_urls)  # randomize order
 
     return image_urls
 
@@ -127,10 +130,10 @@ def gather_images(search, num_images=None):
         download_image(DATA_DIR, file, url, category=search)
 
 
-def main():
-    for obj in CIFAR10:
+def main(n=25, dataset=CIFAR10):
+    for obj in dataset:
         print(obj)
-        gather_images(obj, num_images=500)
+        gather_images(obj, num_images=n)
 
 
 if __name__ == "__main__":
