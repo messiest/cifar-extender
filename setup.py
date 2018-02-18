@@ -16,4 +16,9 @@ setup(name='cifar-extender',
                    'Programming Language :: Python',
                    'Programming Language :: Python :: 3',
                    'Topic :: Artificial Intelligence :: Scientific/Engineering'],
+      entry_points={
+          'console_scripts': [
+              'cifar-download = cifar_extender.download:main'
+          ]
+      },
       )

@@ -1,14 +1,11 @@
 import os
 import sys
-import csv
+import asyncio
 
 import numpy as np
 import requests
 from bs4 import BeautifulSoup
-import cv2
 import nltk
-import torch
-from torchvision.utils import save_image
 
 
 DATA_DIR = 'images/'  # where the images will be stored
@@ -58,10 +55,12 @@ def get_image_urls(search_item):
     return image_urls
 
 
-def download_image(data_dir, file_name, url, category=None):
+def download_image(loop, data_dir, file_name, url, category=None):
     """
     download image from url to disk
 
+    :param loop: event loop for the downloading.
+    :type loop: asyncio.AbstractEventLoop()
     :param data_dir: key for the image file, used as the file name
     :type data_dir: str
     :param file_name: name for the image file, used as the file name
@@ -76,8 +75,10 @@ def download_image(data_dir, file_name, url, category=None):
     file_path = os.path.join(category, file_name)
     try:
         image = requests.get(url, allow_redirects=False, timeout=5)
-        if image.status_code == 200:
+        headers = image.headers
+        print(headers['Content-Type'], headers['Content-Length'])
 
+        if image.status_code == 200:
             with open(os.path.join(data_dir, file_path), 'wb') as file:
                 file.write(image.content)
                 # pass
@@ -88,8 +89,10 @@ def download_image(data_dir, file_name, url, category=None):
         print(e)
         pass
 
+    loop.stop()
 
-def gather_images(search, num_images=None):
+
+def gather_images(loop, search, num_images=None):
     """
     search for images on ImageNet, write images to disk
 
@@ -125,19 +128,24 @@ def gather_images(search, num_images=None):
         file = url.split('/')[-1]  # image file name
         if os.path.splitext(file)[1] != ".jpg":  # skip non jpg files
             continue
-        print(f" {i+1}/{num_images} - {file}")
+        loop.call_soon(download_image, loop, DATA_DIR, file, url, search)
+        # download_image(DATA_DIR, file, url, category=search)
 
-        download_image(DATA_DIR, file, url, category=search)
+    print(f" {i+1}/{num_images} - {file}")
 
 
-def main(n=25, dataset=CIFAR10):
+def main(n=100, dataset=CIFAR10):
+
+    if len(sys.argv) > 1:  # catch sys args
+        n = int(sys.argv[1])
+    # if len(sys.argv) > 2:  # look into optparse / argparse / click
+    loop = asyncio.get_event_loop()  # async event loop
     for obj in dataset:
         print(obj)
-        gather_images(obj, num_images=n)
+        gather_images(loop, obj, num_images=n)
+    loop.run_forever()  # execute queued work
+    loop.close()  # shutdown loop
 
 
 if __name__ == "__main__":
-    try:
-        main(n=int(sys.argv[1]))
-    except:
-        main()
+    main()
