@@ -11,7 +11,7 @@ from torchvision.utils import save_image
 
 
 DATA_DIR = 'images/'  # where the images will be stored
-CIFAR10 = ['airplane', 'car', 'bird', 'cat', 'deer',  # automobile changed to car
+CIFAR10 = ['airplane', 'car', 'bird', 'cat', 'deer',  # automobile to car
            'dog', 'frog', 'horse', 'ship', 'truck']
 
 
@@ -47,7 +47,6 @@ def download_image(data_dir, file_name, url, category=None):
         pass
 
 
-
 def get_image_urls(search_item):
     """
     return image urls from https://www.image-net.org
@@ -57,15 +56,17 @@ def get_image_urls(search_item):
     """
 
     print("Getting {} image urls...".format(search_item))
-    url = "http://www.image-net.org/search?q={}".format(search_item)                    # search image by wnid
-    html = requests.get(url, timeout=5)                                                            # url connect
-    soup = BeautifulSoup(html.text, 'lxml')                                             # create soup object
+    # search for images by wnid
+    url = "http://www.image-net.org/search?q={}".format(search_item)
+    html = requests.get(url, timeout=5)  # url connect
+    soup = BeautifulSoup(html.text, 'lxml')  # create soup object
     tags = []
-    for search in soup.findAll(name='table', attrs={'class', 'search_result'}):         # find table
-        for a in search.findAll(name='a'):                                              # find href tag
-            try:                                                                        # prevent breaking
-                tags.append(a['href'].split('?')[1])                                    # href w/ wnid link
-                break                                                                   # only get first wnid
+    # find table
+    for search in soup.findAll(name='table', attrs={'class', 'search_result'}):
+        for a in search.findAll(name='a'):  # find href tag
+            try:  #prevent breaking
+                tags.append(a['href'].split('?')[1])  # href w/ wnid link
+                break  # only get first wnid
             except IndexError:
                 pass
 
@@ -74,7 +75,8 @@ def get_image_urls(search_item):
     print("TAGS: ", tags)
 
     for tag in tags:
-        url = "http://www.image-net.org/api/text/imagenet.synset.geturls?{}".format(tag)  # image net search id
+        # image net search id
+        url = "http://www.image-net.org/api/text/imagenet.synset.geturls?{}".format(tag)
         try:
             print("URL:", url)
             html = requests.get(url)  # html for search
@@ -100,11 +102,14 @@ def gather_images(search, num_images=None):
         os.mkdir(DATA_DIR)
 
     if isinstance(search, nltk.corpus.reader.wordnet.Synset):
-        search = search.name().split('.')[0].replace('_', ' ')  # get object name from synset
+        # get object name from synset
+        search = search.name().split('.')[0].replace('_', ' ')
 
     print("\nSearching for {} images...".format(search))
-    search_url = search.replace(' ', '+').replace(',', '%2C').replace("'", "%27")  # formatted for search url
-    search = search.replace(', ', '-').replace(' ', '_').replace("'", "")  # formatted for file system
+    # url format for search url
+    search_url = search.replace(' ', '+').replace(',', '%2C').replace("'", "%27")
+    # file format for file system
+    search = search.replace(', ', '-').replace(' ', '_').replace("'", "")
 
     if not os.path.exists(DATA_DIR + search):
         os.mkdir(DATA_DIR + search)
