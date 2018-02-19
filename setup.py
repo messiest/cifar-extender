@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(name='cifar-extender',
       version='1.0',
-      description='extending the cifar datasets',
+      description='extending the cifar datasets with imagenet images',
       long_description=open('README.md').read(),
       author='Chris Messier',
       license='BSD 3-Clause',
@@ -17,5 +17,9 @@ setup(name='cifar-extender',
                    'Programming Language :: Python',
                    'Programming Language :: Python :: 3',
                    'Topic :: Artificial Intelligence :: Scientific/Engineering'],
-      scripts=['cifar_extender/cifar_download.py'],
+      scripts=[
+          'cifar_extender/cifar_download.py',
+          'cifar_extender/cifar_parser.py'
+      ],
+      install_requires=open('requirements.txt', 'r').readlines(),
       )

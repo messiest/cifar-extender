@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 import nltk
 
 
-DATA_DIR = 'images/'  # where the images will be stored
+DATA_DIR = 'data/'  # where the images will be stored
 CIFAR10 = ['airplane', 'car', 'bird', 'cat', 'deer',  # automobile to car
            'dog', 'frog', 'horse', 'ship', 'truck']
 
@@ -31,16 +31,14 @@ def get_image_urls(search_item):
     # find table
     for search in soup.findAll(name='table', attrs={'class', 'search_result'}):
         for a in search.findAll(name='a'):  # find href tag
-            try:  # prevent breaking
+            try:  #prevent breaking
                 tags.append(a['href'].split('?')[1])  # href w/ wnid link
                 break  # only get first wnid
             except IndexError:
                 pass
 
     image_urls = []
-
     print("TAGS: ", tags)
-
     for tag in tags:
         # image net search id
         url = "http://www.image-net.org/api/text/imagenet.synset.geturls?{}".format(tag)
@@ -62,7 +60,7 @@ def download_image(loop, data_dir, file_name, url, category=None):
     """
     download image from url to disk
 
-    :param loop: event loop for the downloading.
+    :param loop: async event loop for the downloader
     :type loop: asyncio.AbstractEventLoop()
     :param data_dir: key for the image file, used as the file name
     :type data_dir: str
@@ -91,8 +89,9 @@ def download_image(loop, data_dir, file_name, url, category=None):
     elif int(headers['Content-Length']) < 50000:
         print("FILE SIZE ERROR {}: {}".format(headers['Content-Length'], url))
     else:
-        with open(os.path.join(data_dir, file_path), 'wb') as file:
-            file.write(image.content)  #
+        with open(os.path.join(data_dir, 'images.csv'), 'a') as file:
+            writer = csv.writer(file)
+            writer.writerow([category, url, file_name])
 
     loop.stop()
 
@@ -120,8 +119,8 @@ def gather_images(loop, search, num_images=None):
     # file format for file system
     search = search.replace(', ', '-').replace(' ', '_').replace("'", "")
 
-    if not os.path.exists(DATA_DIR + search):
-        os.mkdir(DATA_DIR + search)
+    if not os.path.exists(DATA_DIR):
+        os.mkdir(DATA_DIR)
 
     # get list of image urls
     image_urls = [url for url in get_image_urls(search_url)]
@@ -134,20 +133,16 @@ def gather_images(loop, search, num_images=None):
         if os.path.splitext(file)[1] != ".jpg":  # skip non jpg files
             continue
         loop.call_soon(download_image, loop, DATA_DIR, file, url, search)
-        # download_image(DATA_DIR, file, url, category=search)
-
-    # print(f" {i+1}/{num_images} - {file}")
 
 
-def main(n=100, dataset=CIFAR10):
+def main(n=1000, dataset=CIFAR10):
     if len(sys.argv) > 1:  # catch sys args
         n = int(sys.argv[1])
     # if len(sys.argv) > 2:  # look into optparse / argparse / click
     loop = asyncio.get_event_loop()  # async event loop
     for obj in dataset:
-
         gather_images(loop, obj, num_images=n)
-    #TODO(@messiest) figure out the looping, ie making sure there are 100 images
+    #TODO (@messiest) figure out the looping, re making sure there are 100 images
     loop.run_forever()  # execute queued work
     loop.close()  # shutdown loop
 
