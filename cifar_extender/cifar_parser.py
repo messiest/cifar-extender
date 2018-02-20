@@ -1,6 +1,5 @@
 #!/usr/bin/env python3.6
 import os
-import sys
 import csv
 import asyncio
 
@@ -101,7 +100,9 @@ def gather_images(loop, search):
         loop.call_soon(build_collection, loop, DATA_DIR, url, search)
 
 
-def main(dataset=CIFAR10):  #TODO(@messiest) extend to CIFAR100...
+def main(dataset, data_dir=None):  #TODO(@messiest) extend to CIFAR100...
+    if not data_dir:
+        data_dir = DATA_DIR
 
     if not os.path.exists(DATA_DIR):
         os.mkdir(DATA_DIR)
@@ -115,4 +116,4 @@ def main(dataset=CIFAR10):  #TODO(@messiest) extend to CIFAR100...
 
 
 if __name__ == "__main__":
-    main()
+    main(DATA_DIR)

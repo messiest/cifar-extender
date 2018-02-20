@@ -66,16 +66,17 @@ def get_collection(filename):
     return collection
 
 
-def main(datafile):
-
-    if not os.path.exists(IMG_DIR):
-        os.mkdir(IMG_DIR)
+def main(datafile, img_dir=None):
+    if not img_dir:
+        img_dir = IMG_DIR
+    if not os.path.exists(img_dir):
+        os.mkdir(img_dir)
 
     d = get_collection(datafile)
     loop = asyncio.get_event_loop()  # async event loop
     for k in d.keys():
         for url in d[k]:
-            loop.call_soon(download_image, loop, IMG_DIR, url, k)
+            loop.call_soon(download_image, loop, img_dir, url, k)
 
     loop.run_forever()  # execute queued work
     loop.close()  # shutdown loop
