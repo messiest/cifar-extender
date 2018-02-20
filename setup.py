@@ -10,6 +10,11 @@ setup(name='cifar-extender',
       author_email='messier.development@gmail.com',
       url='https://github.com/messiest/cifar-extender',
       packages=['cifar_extender'],
+      scripts=[
+          'cifar_extender/cifar_download.py',
+          'cifar_extender/cifar_parser.py'
+      ],
+      install_requires=open('requirements.txt', 'r').readlines(),
       classifiers=['Development Status :: 1 - Planning',
                    'Intended Audience :: Developers',
                    'License :: OSI Approved :: BSD License',
@@ -17,9 +22,4 @@ setup(name='cifar-extender',
                    'Programming Language :: Python',
                    'Programming Language :: Python :: 3',
                    'Topic :: Artificial Intelligence :: Scientific/Engineering'],
-      scripts=[
-          'cifar_extender/cifar_download.py',
-          'cifar_extender/cifar_parser.py'
-      ],
-      install_requires=open('requirements.txt', 'r').readlines(),
       )
