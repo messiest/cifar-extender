@@ -78,7 +78,7 @@ def build_collection(loop, data_dir, url, category):
     loop.stop()
 
 
-def gather_images(loop, search, num_images=None):
+def gather_images(loop, search):
     """
     search for images on ImageNet, write images to disk
 
@@ -100,29 +100,14 @@ def gather_images(loop, search, num_images=None):
     if not os.path.exists(DATA_DIR):
         os.mkdir(DATA_DIR)
 
-    # get list of image urls
-    # image_urls = [loop.call_soon(build_collection, loop, DATA_DIR, url, search) for url in get_image_urls(search_url)]
     for url in get_image_urls(search_url):
         loop.call_soon(build_collection, loop, DATA_DIR, url, search)
-    # image_urls = [url for url in get_image_urls(search_url)]
-    # total_urls = len(image_urls)  # number of total urls
-    # print("  {} image urls found".format(total_urls))
-    # for i, url in enumerate(image_urls):  # start with last used url
-    #     if i == num_images:  # only download set number of images
-    #         break
-    #     file = url.split('/')[-1]  # image file name
-    #     if os.path.splitext(file)[1] != ".jpg":  # skip non jpg files
-    #         continue
-    #     loop.call_soon(build_collection, loop, DATA_DIR, url, search)
 
 
-def main(n=1000, dataset=CIFAR10):
-    if len(sys.argv) > 1:  # catch sys args
-        n = int(sys.argv[1])
-    # if len(sys.argv) > 2:  # look into optparse / argparse / click
+def main(dataset=CIFAR10):  #TODO(@messiest) extend to CIFAR100...
     loop = asyncio.get_event_loop()  # async event loop
     for obj in dataset:
-        gather_images(loop, obj, num_images=n)
+        gather_images(loop, obj)
     #TODO (@messiest) figure out the looping, re making sure there are 100 images
     loop.run_forever()  # execute queued work
     loop.close()  # shutdown loop

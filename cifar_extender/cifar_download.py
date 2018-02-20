@@ -16,10 +16,8 @@ def download_image(loop, image_dir, url, category):
 
     :param loop: event loop for the downloading.
     :type loop: asyncio.AbstractEventLoop()
-    :param data_dir: key for the image file, used as the file name
-    :type data_dir: str
-    :param file_name: name for the image file, used as the file name
-    :type file_name: str
+    :param image_dir: key for the image file, used as the file name
+    :type image_dir: str
     :param url: url to the image file
     :type url: str
     :param category: categeory for the image, used to save to a class directory
@@ -39,16 +37,16 @@ def download_image(loop, image_dir, url, category):
     headers = image.headers
 
     if image.status_code != 200:
-        print("CONNECTION ERROR {}: {}".format(image.status_code, url))
+        print("\tCONNECTION ERROR {}: {}".format(image.status_code, url))
     elif headers['Content-Type'] != 'image/jpeg':
-        print("FILE TYPE ERROR {}: {}".format(headers['Content-Type'], url))
-    elif int(headers['Content-Length']) < 50000:
-        print("FILE SIZE ERROR {}: {}".format(headers['Content-Length'], url))
+        print("\tFILE TYPE ERROR {}: {}".format(headers['Content-Type'], url))
+    elif int(headers['Content-Length']) < 50000:  # only files > 50kb
+        print("\tFILE SIZE ERROR {}: {}".format(headers['Content-Length'], url))
     else:
         with open(os.path.join(image_dir, file_path), 'wb') as file:
-            file.write(image.content)  #
+            file.write(image.content)  # download image
 
-    loop.stop()
+    loop.stop()  # escape loop iteration
 
 
 def get_collection(filename):
