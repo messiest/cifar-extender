@@ -97,14 +97,15 @@ def gather_images(loop, search):
     # file format for file system
     search = search.replace(', ', '-').replace(' ', '_').replace("'", "")
 
-    if not os.path.exists(DATA_DIR):
-        os.mkdir(DATA_DIR)
-
     for url in get_image_urls(search_url):
         loop.call_soon(build_collection, loop, DATA_DIR, url, search)
 
 
 def main(dataset=CIFAR10):  #TODO(@messiest) extend to CIFAR100...
+
+    if not os.path.exists(DATA_DIR):
+        os.mkdir(DATA_DIR)
+
     loop = asyncio.get_event_loop()  # async event loop
     for obj in dataset:
         gather_images(loop, obj)

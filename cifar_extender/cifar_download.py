@@ -7,7 +7,7 @@ from collections import defaultdict
 import requests
 
 
-IMG_DIR = "./images/"
+IMG_DIR = "images/"
 
 
 def download_image(loop, image_dir, url, category):
@@ -26,7 +26,13 @@ def download_image(loop, image_dir, url, category):
     :rtype: None
     """
     file_name = url.split('/')[-1]
-    file_path = os.path.join(category, file_name)
+    dir_path = os.path.join(image_dir, category)
+    if not os.path.exists(dir_path):
+        os.mkdir(dir_path)
+
+    file_path = os.path.join(dir_path, file_name)
+
+    print(file_path)
 
     try:
         image = requests.get(url, allow_redirects=False, timeout=5)
@@ -43,7 +49,7 @@ def download_image(loop, image_dir, url, category):
     elif int(headers['Content-Length']) < 50000:  # only files > 50kb
         print("\tFILE SIZE ERROR {}: {}".format(headers['Content-Length'], url))
     else:
-        with open(os.path.join(image_dir, file_path), 'wb') as file:
+        with open(file_path, 'wb') as file:
             file.write(image.content)  # download image
 
     loop.stop()  # escape loop iteration
@@ -61,6 +67,10 @@ def get_collection(filename):
 
 
 def main(datafile):
+
+    if not os.path.exists(IMG_DIR):
+        os.mkdir(IMG_DIR)
+
     d = get_collection(datafile)
     loop = asyncio.get_event_loop()  # async event loop
     for k in d.keys():
