@@ -40,7 +40,8 @@ def get_image_urls(search_item):
     print("TAGS: ", tags)
     for tag in tags:
         # image net search id
-        url = "http://www.image-net.org/api/text/imagenet.synset.geturls?{}".format(tag)
+        api_url = "http://www.image-net.org/api/text/imagenet.synset.geturls?{}"
+        url = api_url.format(tag)
         try:
             print("URL:", url)
             html = requests.get(url)  # html for search
@@ -100,7 +101,7 @@ def gather_images(loop, search):
         loop.call_soon(build_collection, loop, DATA_DIR, url, search)
 
 
-def main(dataset, data_dir=None):  #TODO(@messiest) extend to CIFAR100...
+def main(data_dir=None, dataset=CIFAR10):  #TODO(@messiest) extend to CIFAR100...
     if not data_dir:
         data_dir = DATA_DIR
 
