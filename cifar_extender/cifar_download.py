@@ -34,7 +34,7 @@ def download_images(loop, image_dir, urls, category, n=100):
         os.mkdir(dir_path)
 
     for url in urls:
-        if len(os.listdir(dir_path)) == n:
+        if len(os.listdir(dir_path)) >= n:
             break
 
         file_name = url.split('/')[-1]
@@ -45,23 +45,20 @@ def download_images(loop, image_dir, urls, category, n=100):
             print(e)
             continue
 
-        print("{} - {}/{}: {}".format(category,
-                                      len(os.listdir(dir_path)) + 1,
+        print("{}/{} - {}: {}".format(len(os.listdir(dir_path)) + 1,
                                       n,
+                                      category,
                                       file_name))
         headers = image.headers
         if image.status_code != 200:
-            print("\tCONNECTION ERROR {}: {}".format(image.status_code,
-                                                     url))
-            continue
+            print("\tCONNECTION ERROR {}: {}".format(image.status_code, url))
+            # continue
         elif headers['Content-Type'] != 'image/jpeg':
-            print("\tFILE TYPE ERROR {}: {}".format(headers['Content-Type'],
-                                                    url))
-            continue
+            print("\tFILE TYPE ERROR {}: {}".format(headers['Content-Type'], url))
+            # continue
         elif int(headers['Content-Length']) < 50000:  # only files > 50kb
-            print("\tFILE SIZE ERROR {}: {}".format(headers['Content-Length'],
-                                                    url))
-            continue
+            print("\tFILE SIZE ERROR {}: {}".format(headers['Content-Length'], url))
+            # continue
         else:
             with open(file_path, 'wb') as file:
                 file.write(image.content)  # download image
