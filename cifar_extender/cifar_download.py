@@ -1,5 +1,7 @@
 #!/usr/bin/env python3.6
+
 import os
+import sys
 import csv
 import asyncio
 from collections import defaultdict
@@ -7,7 +9,7 @@ from collections import defaultdict
 import requests
 
 
-IMG_DIR = "images/"
+IMG_DIR = "./images/"
 
 
 def download_images(loop, image_dir, urls, category, n=100):
@@ -31,13 +33,8 @@ def download_images(loop, image_dir, urls, category, n=100):
     if not os.path.exists(dir_path):
         os.mkdir(dir_path)
 
-    print(len(urls))
-
     for url in urls:
-        print("CATEGORY:", category)
-        print("FILES:", )
         if len(os.listdir(dir_path)) == n:
-            print(len(os.listdir(dir_path)), n)
             break
 
         file_name = url.split('/')[-1]
@@ -45,11 +42,11 @@ def download_images(loop, image_dir, urls, category, n=100):
         try:
             image = requests.get(url, allow_redirects=False, timeout=2)
         except Exception as e:
-            # print("\t", e)
+            print(e)
             continue
 
         print("{} - {}/{}: {}".format(category,
-                                      len(os.listdir(dir_path)),
+                                      len(os.listdir(dir_path)) + 1,
                                       n,
                                       file_name))
         headers = image.headers
@@ -84,6 +81,9 @@ def get_collection(filename):
 
 
 def main(datafile, n=100, img_dir=None):
+    if len(sys.argv) > 1:
+        n = int(sys.argv[1])
+
     if not img_dir:
         img_dir = IMG_DIR
     if not os.path.exists(img_dir):
@@ -92,7 +92,6 @@ def main(datafile, n=100, img_dir=None):
     d = get_collection(datafile)
     loop = asyncio.get_event_loop()  # async event loop
     for k in d.keys():
-        print(len(d[k]), d[k])
         loop.call_soon(download_images, loop, img_dir, d[k], k, n)
 
     loop.run_forever()  # execute queued work

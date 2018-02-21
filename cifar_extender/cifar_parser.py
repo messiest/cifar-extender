@@ -47,7 +47,6 @@ def get_image_urls(search_item):
             html = requests.get(url)  # html for search
             urls = (image_url for image_url in html.text.split('\r\n'))
             image_urls = [url for url in urls if url != '\n']
-            # TODO(@messiest) Break parsing and downloading into two modules
         except:
             pass
 
@@ -101,7 +100,8 @@ def gather_images(loop, search, data_dir):
         loop.call_soon(build_collection, loop, data_dir, url, search)
 
 
-def main(data_dir=DATA_DIR, dataset=CIFAR10):  #TODO(@messiest) extend to CIFAR100...
+# TODO(@messiest) extend to CIFAR100...
+def main(data_dir=DATA_DIR, dataset=CIFAR10):
     if not data_dir:
         data_dir = DATA_DIR
 
@@ -111,7 +111,6 @@ def main(data_dir=DATA_DIR, dataset=CIFAR10):  #TODO(@messiest) extend to CIFAR1
     loop = asyncio.get_event_loop()  # async event loop
     for obj in dataset:
         gather_images(loop, obj, data_dir)
-    #TODO (@messiest) figure out the looping, making sure there are n images
     loop.run_forever()  # execute queued work
     loop.close()  # shutdown loop
 
