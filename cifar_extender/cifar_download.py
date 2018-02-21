@@ -10,7 +10,7 @@ import requests
 IMG_DIR = "images/"
 
 
-def download_image(loop, image_dir, url, category):
+def download_images(loop, image_dir, urls, category, n=100):
     """
     download image from url to disk
 
@@ -18,39 +18,56 @@ def download_image(loop, image_dir, url, category):
     :type loop: asyncio.AbstractEventLoop()
     :param image_dir: key for the image file, used as the file name
     :type image_dir: str
-    :param url: url to the image file
-    :type url: str
+    :param urls: urls for the image files
+    :type urls: list
     :param category: categeory for the image, used to save to a class directory
     :type category: str
+    :param n: number of pictures to download
+    :type n: int
     :return: None
     :rtype: None
     """
-    file_name = url.split('/')[-1]
     dir_path = os.path.join(image_dir, category)
     if not os.path.exists(dir_path):
         os.mkdir(dir_path)
 
-    file_path = os.path.join(dir_path, file_name)
+    print(len(urls))
 
-    print(file_path)
+    for url in urls:
+        print("CATEGORY:", category)
+        print("FILES:", )
+        if len(os.listdir(dir_path)) == n:
+            print(len(os.listdir(dir_path)), n)
+            break
 
-    try:
-        image = requests.get(url, allow_redirects=False, timeout=5)
-    except Exception as e:
-        print(e)
-        return e
+        file_name = url.split('/')[-1]
+        file_path = os.path.join(dir_path, file_name)
+        try:
+            image = requests.get(url, allow_redirects=False, timeout=2)
+        except Exception as e:
+            # print("\t", e)
+            continue
 
-    headers = image.headers
-
-    if image.status_code != 200:
-        print("\tCONNECTION ERROR {}: {}".format(image.status_code, url))
-    elif headers['Content-Type'] != 'image/jpeg':
-        print("\tFILE TYPE ERROR {}: {}".format(headers['Content-Type'], url))
-    elif int(headers['Content-Length']) < 50000:  # only files > 50kb
-        print("\tFILE SIZE ERROR {}: {}".format(headers['Content-Length'], url))
-    else:
-        with open(file_path, 'wb') as file:
-            file.write(image.content)  # download image
+        print("{} - {}/{}: {}".format(category,
+                                      len(os.listdir(dir_path)),
+                                      n,
+                                      file_name))
+        headers = image.headers
+        if image.status_code != 200:
+            print("\tCONNECTION ERROR {}: {}".format(image.status_code,
+                                                     url))
+            continue
+        elif headers['Content-Type'] != 'image/jpeg':
+            print("\tFILE TYPE ERROR {}: {}".format(headers['Content-Type'],
+                                                    url))
+            continue
+        elif int(headers['Content-Length']) < 50000:  # only files > 50kb
+            print("\tFILE SIZE ERROR {}: {}".format(headers['Content-Length'],
+                                                    url))
+            continue
+        else:
+            with open(file_path, 'wb') as file:
+                file.write(image.content)  # download image
 
     loop.stop()  # escape loop iteration
 
@@ -66,7 +83,7 @@ def get_collection(filename):
     return collection
 
 
-def main(datafile, img_dir=None):
+def main(datafile, n=100, img_dir=None):
     if not img_dir:
         img_dir = IMG_DIR
     if not os.path.exists(img_dir):
@@ -75,12 +92,12 @@ def main(datafile, img_dir=None):
     d = get_collection(datafile)
     loop = asyncio.get_event_loop()  # async event loop
     for k in d.keys():
-        for url in d[k]:
-            loop.call_soon(download_image, loop, img_dir, url, k)
+        print(len(d[k]), d[k])
+        loop.call_soon(download_images, loop, img_dir, d[k], k, n)
 
     loop.run_forever()  # execute queued work
     loop.close()  # shutdown loop
 
 
 if __name__ == "__main__":
-    main('data/images.csv')
+    main('data/images.csv', n=100)

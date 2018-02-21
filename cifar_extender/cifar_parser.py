@@ -78,7 +78,7 @@ def build_collection(loop, data_dir, url, category):
     loop.stop()
 
 
-def gather_images(loop, search):
+def gather_images(loop, search, data_dir):
     """
     search for images on ImageNet, write images to disk
 
@@ -98,20 +98,20 @@ def gather_images(loop, search):
     search = search.replace(', ', '-').replace(' ', '_').replace("'", "")
 
     for url in get_image_urls(search_url):
-        loop.call_soon(build_collection, loop, DATA_DIR, url, search)
+        loop.call_soon(build_collection, loop, data_dir, url, search)
 
 
-def main(data_dir=None, dataset=CIFAR10):  #TODO(@messiest) extend to CIFAR100...
+def main(data_dir=DATA_DIR, dataset=CIFAR10):  #TODO(@messiest) extend to CIFAR100...
     if not data_dir:
         data_dir = DATA_DIR
 
-    if not os.path.exists(DATA_DIR):
-        os.mkdir(DATA_DIR)
+    if not os.path.exists(data_dir):
+        os.mkdir(data_dir)
 
     loop = asyncio.get_event_loop()  # async event loop
     for obj in dataset:
-        gather_images(loop, obj)
-    #TODO (@messiest) figure out the looping, re making sure there are 100 images
+        gather_images(loop, obj, data_dir)
+    #TODO (@messiest) figure out the looping, making sure there are n images
     loop.run_forever()  # execute queued work
     loop.close()  # shutdown loop
 
