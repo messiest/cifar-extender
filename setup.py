@@ -15,11 +15,12 @@ setup(name='cifar-extender',
           'cifar_extender/cifar_parser.py'
       ],
       install_requires=open('requirements.txt', 'r').readlines(),
-      classifiers=['Development Status :: 1 - Planning',
-                   'Intended Audience :: Developers',
-                   'License :: OSI Approved :: BSD License',
-                   'Operating System :: OS Independent',
-                   'Programming Language :: Python',
-                   'Programming Language :: Python :: 3',
-                   'Topic :: Artificial Intelligence :: Scientific/Engineering'],
-      )
+      classifiers=[
+          'Development Status :: 1 - Planning',
+          'Intended Audience :: Developers',
+          'License :: OSI Approved :: BSD License',
+          'Operating System :: OS Independent',
+          'Programming Language :: Python :: 3.6',
+          'Topic :: Scientific/Engineering :: Artificial Intelligence',
+      ],
+)
